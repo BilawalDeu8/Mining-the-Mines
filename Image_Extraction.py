@@ -10,12 +10,12 @@ from rasterio.windows import from_bounds
 from shapely.geometry import Polygon, mapping, shape
 
 # Load the mining site polygons shapefile
-mining_sites = gpd.read_file('E:/Mining the mines/mines_in_india/mines_in_india.shp')
+mining_sites = gpd.read_file('/path')
 print(mining_sites.crs)
 mining_sites = mining_sites.to_crs('EPSG:4326')
 print(mining_sites.crs)
 # Directory containing the satellite images
-image_dir = 'E:/Mining the mines/India_Images_GEE'
+image_dir = '/path'
 
 # Function to ensure image dimensions are divisible by 32
 def adjust_dimensions(image):
@@ -76,7 +76,7 @@ for index, polygon in mining_sites.iterrows():
                 new_out_image = src.read(window=new_window)
     
                 with rasterio.open(
-                    f'E:\Mining the mines\output_images\masks\{index}.tif', 'w',
+                    f'/path', 'w',
                     driver='GTiff',
                     height=mask_image_adjusted.shape[0],
                     width=mask_image_adjusted.shape[1],
@@ -92,7 +92,7 @@ for index, polygon in mining_sites.iterrows():
     
                 # Save the new extracted image
                 with rasterio.open(
-                    f'E:\Mining the mines\output_images\images\{index}.tif', 'w',
+                    f'/path', 'w',
                     driver='GTiff',
                     height=new_height,
                     width=new_width,
@@ -104,6 +104,7 @@ for index, polygon in mining_sites.iterrows():
                     for band_index, band in enumerate(new_out_image, start=1):
                         dest.write(band, band_index)
                     print(f"done_{index}_image")
+                    
 
 # Approach - 2 (Removed outliers, then resize all the images and masks to dimensions of biggest image )
 """removing outliers"""
@@ -198,7 +199,7 @@ for index, polygon in mining_sites.iterrows():
 
                 # Saving the masks
                 with rasterio.open(
-                        f'E:\Mining the mines\output_images\masks\{index}.tif', 'w',
+                        f'/path', 'w',
                         driver='GTiff',
                         height=padded_out_image.shape[1],
                         width=padded_out_image.shape[2],
@@ -212,7 +213,7 @@ for index, polygon in mining_sites.iterrows():
 
                 # Saving the src image
                 with rasterio.open(
-                        f'E:\Mining the mines\output_images\images\{index}.tif', 'w',
+                        f'/path', 'w',
                         driver='GTiff',
                         height=height,
                         width=width,
@@ -274,11 +275,6 @@ for index, polygon in mining_sites.iterrows():
             else:
                 out_image, out_transform = mask(src, geo_json, crop=True)
                 padded_out_image = pad_image_to_square(out_image)
-                # print(f"Polygon Index: {index}, Image: {image_filename}")
-                # print(f"Shape of out_image: {padded_out_image.shape}")
-                # plt.imshow(padded_out_image.transpose(1, 2, 0))
-                # plt.title(f"Polygon Index: {index}, Image: {image_filename}")
-                # plt.show()
                 
                 _, padded_height, padded_width = padded_out_image.shape
                 padded_transform = get_padded_transform(out_transform, padded_width, padded_height)
@@ -289,23 +285,15 @@ for index, polygon in mining_sites.iterrows():
                     fill=0,
                     dtype=rasterio.uint8
                 )
-                # plt.imshow(mask_image)
-                # plt.title(f"Polygon Index: {index}, Image: {image_filename}")
-                # plt.show()
-                # height, width = padded_out_image.shape[1], padded_out_image.shape[2]
+            
                 col_off, row_off = padded_transform.c, padded_transform.f
                 new_window = rasterio.windows.Window(col_off=int(col_off), row_off=int(row_off), width = padded_width, height = padded_height)
                 new_out_image = src.read(window=new_window)
-                # print(f"Polygon Index: {index}, Image: {image_filename}")
-                # print(f"Shape of out_image: {new_out_image.shape}")
-                # plt.imshow(new_out_image.transpose(1, 2, 0))
-                # plt.title(f"Polygon Index: {index}, Image: {image_filename}")
-                # plt.show()
         
 
                 # Saving the masks
                 with rasterio.open(
-                    f'E:\Mining the mines\output_images\masks\{index}.tif', 'w',
+                    f'/path', 'w',
                     driver='GTiff',
                     height=padded_out_image.shape[1],
                     width=padded_out_image.shape[2],
@@ -319,7 +307,7 @@ for index, polygon in mining_sites.iterrows():
                 
                 # Saving the src image
                 with rasterio.open(
-                    f'E:\Mining the mines\output_images\images\{index}.tif', 'w',
+                    f'/path', 'w',
                     driver='GTiff',
                     height=padded_height,
                     width=padded_width,
